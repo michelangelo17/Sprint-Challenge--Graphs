@@ -32,8 +32,10 @@ traversal_path = []
 
 def generate_traversal_path():
     graph = {}
-    completed = set()
+
     visted = set()
+
+    t_path = []
 
     def dft(room):
         cur_room = room
@@ -68,7 +70,7 @@ def generate_traversal_path():
 
             direction = random.choice(untried)
 
-            traversal_path.append(direction)
+            t_path.append(direction)
             new_room = cur_room.get_room_in_direction(direction)
             graph[cur_room.id][direction] = new_room.id
             previous = [direction, cur_room.id]
@@ -77,31 +79,33 @@ def generate_traversal_path():
     def bfs(starting_room):
         paths_dict = {}
         todo = []
+        completed = set()
 
         todo.append([starting_room])
         while len(todo) > 0 and len(graph.keys()) < len(room_graph):
+            # print(completed)
             rooms = todo.pop(0)
             cur_room = rooms[-1]
 
             if cur_room.id not in completed:
                 if None in graph[cur_room.id].values():
-                    traversal_path.extend(paths_dict[cur_room.id])
+                    t_path.extend(paths_dict[cur_room.id])
                     return cur_room
                 completed.add(cur_room.id)
 
-            exits = cur_room.get_exits()
+                exits = cur_room.get_exits()
 
-            for exit in exits:
-                next_room = cur_room.get_room_in_direction(exit)
-                if cur_room.id in paths_dict:
-                    next_room_path = list(paths_dict[cur_room.id])
-                    next_room_path.append(exit)
-                    paths_dict[next_room.id] = next_room_path
-                else:
-                    paths_dict[next_room.id] = [exit]
-                new_rooms = list(rooms)
-                new_rooms.append(next_room)
-                todo.append(new_rooms)
+                for exit in exits:
+                    next_room = cur_room.get_room_in_direction(exit)
+                    if cur_room.id in paths_dict:
+                        next_room_path = list(paths_dict[cur_room.id])
+                        next_room_path.append(exit)
+                        paths_dict[next_room.id] = next_room_path
+                    else:
+                        paths_dict[next_room.id] = [exit]
+                    new_rooms = list(rooms)
+                    new_rooms.append(next_room)
+                    todo.append(new_rooms)
 
     current_room = player.current_room
 
@@ -112,8 +116,15 @@ def generate_traversal_path():
 
         current_room = bfs_last_room
 
+    return t_path
 
-generate_traversal_path()
+
+while True:
+    path = generate_traversal_path()
+    if len(path) < 975:
+        traversal_path = path
+        break
+
 # TRAVERSAL TEST - DO NOT MODIFY
 visited_rooms = set()
 player.current_room = world.starting_room
